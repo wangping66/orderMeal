@@ -1,0 +1,66 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.mapper.OrderMealInfoMapper">
+
+    <!-- 通用查询映射结果 -->
+    <resultMap id="BaseResultMap" type="com.entity.OrderMealInfo">
+        <id column="meal_info_id" property="mealInfoId" />
+        <result column="create_time" property="createTime" />
+        <result column="update_time" property="updateTime" />
+        <result column="del_flag" property="delFlag" />
+        <result column="order_meal_date" property="orderMealDate" />
+        <result column="user_name" property="userName" />
+        <result column="meal_type" property="mealType" />
+        <result column="track_face" property="trackFace" />
+        <result column="order_time" property="orderTime" />
+    </resultMap>
+
+    <!-- 订餐记录统计 -->
+    <resultMap id="selectOrderMealRecordMap" type="com.vo.AnalysisOrderMealRecordVO">
+        <result column="order_meal_date" property="orderMealDate" />
+        <result column="meal_type" property="mealType" />
+        <result column="number" property="number" />
+    </resultMap>
+
+
+    <!-- 订餐记录 -->
+    <resultMap id="queryOrderMealRecordMap" type="com.vo.QueryOrderMealRecordVO">
+        <result column="order_meal_date" property="orderMealDate" />
+        <result column="track_face" property="trackFace" />
+        <result column="user_name" property="userName" />
+        <result column="meal_type" property="mealType" />
+    </resultMap>
+
+    <select id="QueryOrderMealRecord" parameterType="com.vo.QueryOrderMealRecordVO" resultMap="queryOrderMealRecordMap">
+        SELECT
+            order_meal_info.order_meal_date,
+            order_meal_info.track_face,
+            order_meal_info.user_name,
+            order_meal_info.meal_type
+        FROM
+	order_meal_info
+    </select>
+
+
+    <select id="analysisOrderMealRecord" parameterType="com.dto.OrderMealRecordSelectDTO" resultMap="selectOrderMealRecordMap">
+
+        select
+        order_meal_info.order_meal_date,
+        order_meal_info.meal_type,
+        count(*) as number
+        from (select * from order_meal_info where del_flag = '0') order_meal_info
+        where 0=0
+        <if test="startTime != null">
+            and order_meal_info.order_meal_date >= #{startTime}
+        </if>
+        <if test="endTime != null">
+            <![CDATA[ and order_meal_info.order_meal_date <= #{endTime} ]]>
+        </if>
+        and order_meal_info.meal_type = #{mealType}
+        <if test="isPage == 1">
+            limit #{no},#{limit}
+        </if>
+        GROUP BY order_meal_info.meal_info_id
+    </select>
+
+</mapper>

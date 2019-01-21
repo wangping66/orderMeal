@@ -1,0 +1,73 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.facemeng.stars.common.query.QueryMapper">
+
+    <!--queryData中的条件提取-->
+    <sql id="queryWhere">
+
+        <!--当存在查询条件时-->
+            <if test="null != queryData.sData and queryData.sData.size > 0">
+
+                <!--注入查询条件-->
+                <foreach collection="queryData.sData" item="searchOne">
+                    <!--如果字段名不存在则不进行之后的注入-->
+                    <if test="searchOne.N != null and searchOne.N != '' and searchOne.V != null and searchOne.T != null and searchOne.T != '' ">
+                        <!--判断查询类型-->
+                        <!--完整匹配-->
+                        <if test="searchOne.T == 'equals'">
+                            and ${searchOne.N} = #{searchOne.V}
+                        </if>
+                        <!--模糊匹配-->
+                        <if test="searchOne.T == 'like'">
+                            and ${searchOne.N} like CONCAT('%',#{searchOne.V},'%')
+                        </if>
+                        <!--大于等于-->
+                        <if test="searchOne.T == 'gt'">
+                            and ${searchOne.N} &gt;= #{searchOne.V}
+                        </if>
+                        <!--小于等于-->
+                        <if test="searchOne.T == 'lt'">
+                            and ${searchOne.N} &lt;= #{searchOne.V}
+                        </if>
+                        <!--或者-->
+                        <if test="searchOne.T == 'or'">
+                            or ${searchOne.N} = #{searchOne.V}
+                        </if>
+                        <!--不等于-->
+                        <if test="searchOne.T == 'ne'">
+                            and <![CDATA[ ${searchOne.N} <> #{searchOne.V} ]]>
+                        </if>
+                        <!--等于null-->
+                        <if test="searchOne.T == 'eqnull'">
+                            and  ${searchOne.N} is null
+                        </if>
+                        <!--不等于null-->
+                        <if test="searchOne.T == 'nenull'">
+                            and ${searchOne.N} is not null
+                        </if>
+                        <!--in-->
+                        <if test="searchOne.T == 'in'">
+                            and FIND_IN_SET(${searchOne.N},#{searchOne.V})
+                        </if>
+                    </if>
+                </foreach>
+            </if>
+
+            <!--当存在排序条件时-->
+            <if test="null != queryData.oData and queryData.oData.size > 0">
+                ORDER BY
+                <foreach collection="queryData.oData" item="orderone">
+                    <if test="orderone.N != null and orderone.N != '' and orderone.T !=null and orderone.T !='' ">
+                        <!--升序-->
+                        <if test="orderone.T == 'up'">
+                            ${orderone.N}
+                        </if>
+                        <!--降序-->
+                        <if test="orderone.T == 'down'">
+                            ${orderone.N} desc
+                        </if>
+                    </if>
+                </foreach>
+            </if>
+    </sql>
+</mapper>
