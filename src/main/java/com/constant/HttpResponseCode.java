@@ -1,5 +1,7 @@
 package com.constant;
 
+import java.io.File;
+
 /**
  * Title: cloud-server--com.facemeng.server.common.constant.HttpResponseConst
  * Description: http响应状态码
@@ -51,4 +53,17 @@ public class HttpResponseCode {
     public final static String SC_SERVICE_UNAVAILABLE = "503";
     public final static String SC_GATEWAY_TIMEOUT = "504";
     public final static String SC_HTTP_VERSION_NOT_SUPPORTED = "505";
+
+
+
+    /**
+     * 下载模版存放项目路径
+     */
+    public static final String FILE_TEMPLATE_PATH = "template";
+
+    public static final String SLASH = File.separator;
+
+    public static final  String FORMAT_DATE = "yyyy-MM-dd";
+
+    public static final String FORMAT_DATETIME_DEFAULT = "dd/MM/yyyy HH:mm";
 }

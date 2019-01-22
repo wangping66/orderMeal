@@ -17,7 +17,7 @@ public class MealTypeDropdownVO {
     /**
      * 单位类型下拉框
      */
-    private Map<String,String> mealTypeMap;
+    private List mealTypeMap;
 
 
     // TODO 有需要还可以加

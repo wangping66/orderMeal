@@ -1,8 +1,9 @@
 package com.enums;
 
+import com.alibaba.fastjson.annotation.JSONType;
+import lombok.Data;
 import lombok.Getter;
 import lombok.Setter;
-
 
 public enum MealTypeEnum {
 

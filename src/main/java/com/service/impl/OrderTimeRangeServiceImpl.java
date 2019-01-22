@@ -1,6 +1,7 @@
 package com.service.impl;
 
 import com.dto.OrderTimeRangeDTO;
+import com.dto.OrderTimeRangeForQueryDTO;
 import com.entity.OrderMealInfo;
 import com.entity.OrderTimeRange;
 import com.mapper.OrderMealInfoMapper;
@@ -10,9 +11,15 @@ import com.model.OrderTimeRangeModel;
 import com.service.IOrderMealInfoService;
 import com.service.IOrderTimeRangeService;
 import com.common.base.BaseServiceImpl;
+import com.vo.AnalysisOrderMealRecordVO;
+import com.vo.OrderTimeRangeVO;
 import org.springframework.stereotype.Service;
 
 import javax.annotation.Resource;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 /**
  * <p>
@@ -31,6 +38,7 @@ public class OrderTimeRangeServiceImpl extends BaseServiceImpl<OrderTimeRangeMap
     @Override
     public void updateLunch(OrderTimeRangeDTO orderTimeRangeDTO) {
         OrderTimeRange orderTimeRange = baseMapper.selectById(orderTimeRangeDTO.getMealType());
+        orderTimeRange.setDelFlag("0");
         orderTimeRange.setStartTime(orderTimeRangeDTO.getStartTime());
         orderTimeRange.setEndTime(orderTimeRangeDTO.getEndTime());
         updateById(orderTimeRange);
@@ -39,7 +47,21 @@ public class OrderTimeRangeServiceImpl extends BaseServiceImpl<OrderTimeRangeMap
     }
 
     @Override
-    public void deleteOrderMealRecord() {
-        orderTimeRangeMapper.deleteOrderMealRecord();
+    public void logicDeleteOrderMealTimeRange(String mealType) {
+        Map<String,Object> selectMap = new HashMap<>();
+        selectMap.put("mealType",mealType);
+        orderTimeRangeMapper.logicDeleteOrderMealTimeRange(selectMap);
+    }
+
+    @Override
+    public List<OrderTimeRangeVO> getTimeRange(OrderTimeRangeForQueryDTO orderTimeRangeForQueryDTO) throws Exception {
+        List<OrderTimeRangeVO> orderTimeRangeVOList = orderTimeRangeMapper.getTimeRange(orderTimeRangeForQueryDTO);
+        if(null == orderTimeRangeVOList || orderTimeRangeVOList.size() ==0 ){
+            return Collections.EMPTY_LIST;
+        }
+        for (OrderTimeRangeVO orderTimeRangeVO : orderTimeRangeVOList) {
+            orderTimeRangeVO.setMealTypeToChinese("L".equals(orderTimeRangeVO.getMealType()) ?"午餐":"晚餐");
+        }
+        return orderTimeRangeVOList;
     }
 }

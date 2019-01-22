@@ -15,11 +15,40 @@
         <result column="order_time" property="orderTime" />
     </resultMap>
 
-    <select id="deleteOrderMealRecord">
-        UPDATE order_time_range
+    <resultMap id="getTimeRangeMap" type="com.vo.OrderTimeRangeVO">
+        <result column="start_time" property="startTime" />
+        <result column="meal_type" property="mealType" />
+        <result column="end_time" property="endTime" />
+    </resultMap>
+
+    <select id="logicDeleteOrderMealTimeRange" parameterType="java.util.Map">
+        UPDATE
+        order_time_range
         SET order_time_range.del_flag = '1'
-        WHERE
-        order_time_range.meal_type = 'L'
+        WHERE 0=0
+        <if test="mealType != null">
+            and order_time_range.meal_type = #{mealType}
+        </if>
     </select>
+
+    <select id="getTimeRange" parameterType="com.dto.OrderTimeRangeForQueryDTO" resultMap="getTimeRangeMap">
+        select
+        order_time_range.meal_type,
+        order_time_range.start_time,
+        order_time_range.end_time
+        from (select * from order_time_range where del_flag = '0') order_time_range
+        where 0=0
+        <choose>
+            <when test="mealType == null">
+                and order_time_range.meal_type in ('L','D')
+            </when>
+            <otherwise>
+                and order_time_range.meal_type = #{mealType}
+            </otherwise>
+        </choose>
+        GROUP BY order_time_range.meal_type
+    </select>
+
+
 
 </mapper>

@@ -1,6 +1,4 @@
-package com.dto;
-
-
+package com.vo;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
 import lombok.Data;
@@ -8,11 +6,17 @@ import lombok.Data;
 import java.util.Date;
 
 @Data
-public class OrderTimeRangeDTO {
+public class OrderTimeRangeVO {
+
     /**
      * 订餐类别
      */
     private String mealType;
+
+    /**
+     * 订餐类别对应的汉字餐别
+     */
+    private String mealTypeToChinese;
     /**
      * 开始时间
      */

@@ -3,6 +3,7 @@ package com.vo;
 
 
 import com.alibaba.fastjson.annotation.JSONField;
+import com.enums.MealTypeEnum;
 import com.fasterxml.jackson.annotation.JsonFormat;
 import lombok.Data;
 import lombok.experimental.Accessors;

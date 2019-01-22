@@ -6,19 +6,25 @@ import com.dto.OrderMealDTO;
 import com.dto.OrderMealRecordSelectDTO;
 import com.entity.OrderMealInfo;
 import com.service.IOrderMealInfoService;
+import com.vo.AnalysisOrderMealRecordVO;
 import com.vo.MealTypeDropdownVO;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+import java.util.List;
+import java.util.Map;
 
-import javax.annotation.Resource;
-
+@Slf4j
 @RestController
 @RequestMapping("/orderMeal")
 @Api(value = "/orderMeal", description = "订餐情况")
 public class OrderMealController {
 
-    @Resource
+    @Autowired
     private IOrderMealInfoService iOrderMealInfoService;
 
 
@@ -28,28 +34,19 @@ public class OrderMealController {
         OrderMealInfo result = iOrderMealInfoService.saveOrderMealRecord(orderMealDTO);
         return Result.builder().ok("保存为订餐记录成功").data(result).build();
     }
-    /**
-     * 测试数据库是否连通
-     */
 
-    @GetMapping("/get")
-    public Result getOrderMealRecord() {
-        String userName = iOrderMealInfoService.getOrderMealRecord();
-        return Result.builder().ok("查询订餐记录成功").data(userName).build();
-        //return Result.builder().ok("查询订餐记录成功").data("1").build();
-    }
-
-    @GetMapping("/getMealTypeList")
+    @GetMapping("/getMealTypeMap")
     @ApiOperation(value = "获取餐别类型下拉框")
-    public Result<MealTypeDropdownVO> getMealTypeList() {
-        return Result.builder().ok("获取餐别类型下拉框成功").data(iOrderMealInfoService.getMealTypeList()).build();
+    public Result<MealTypeDropdownVO> getMealTypeMap() {
+        return Result.builder().ok("获取餐别类型下拉框成功").data(iOrderMealInfoService.getMealTypeMap()).build();
 
     }
 
     @ApiOperation(value = "统计订餐记录")
     @PostMapping("/analysis")
     public Result analysisOrderMealRecord(@RequestBody OrderMealRecordSelectDTO orderMealRecordSelectDTO) {
-        return Result.builder().ok("查询订餐记录成功").data(iOrderMealInfoService.analysisOrderMealRecord(orderMealRecordSelectDTO)).build();
+        List<AnalysisOrderMealRecordVO> analysisOrderMealRecordVOS = iOrderMealInfoService.analysisOrderMealRecord(orderMealRecordSelectDTO);
+        return Result.builder().ok("统计订餐记录成功").data(analysisOrderMealRecordVOS).build();
 
     }
 
@@ -58,5 +55,19 @@ public class OrderMealController {
     public Result queryOrderMealRecord(@RequestBody OrderMealRecordSelectDTO orderMealRecordSelectDTO) {
         return Result.builder().ok("订餐记录查询成功").data(iOrderMealInfoService.queryOrderMealRecord(orderMealRecordSelectDTO)).build();
 
+    }
+
+    @GetMapping("/export")
+    @ApiOperation(value = "导出记录")
+    public void export(HttpServletRequest request, HttpServletResponse response) {
+        try {
+            OrderMealRecordSelectDTO orderMealRecordSelectDTO = new OrderMealRecordSelectDTO();
+            orderMealRecordSelectDTO.setStartTime(request.getParameter("startTime"));
+            orderMealRecordSelectDTO.setEndTime(request.getParameter("endTime"));
+            orderMealRecordSelectDTO.setMealType(request.getParameter("mealType"));
+            iOrderMealInfoService.export1(request, response, orderMealRecordSelectDTO);
+        } catch (Exception e) {
+            log.error(e.getMessage());
+        }
     }
 }

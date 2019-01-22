@@ -26,23 +26,44 @@
     <!-- 订餐记录 -->
     <resultMap id="queryOrderMealRecordMap" type="com.vo.QueryOrderMealRecordVO">
         <result column="order_meal_date" property="orderMealDate" />
+        <result column="meal_type" property="mealType" />
         <result column="track_face" property="trackFace" />
         <result column="user_name" property="userName" />
-        <result column="meal_type" property="mealType" />
+        <result column="order_time" property="orderTime" />
     </resultMap>
 
-    <select id="QueryOrderMealRecord" parameterType="com.vo.QueryOrderMealRecordVO" resultMap="queryOrderMealRecordMap">
-        SELECT
-            order_meal_info.order_meal_date,
-            order_meal_info.track_face,
-            order_meal_info.user_name,
-            order_meal_info.meal_type
-        FROM
-	order_meal_info
+    <select id="queryOrderMealRecord" parameterType="java.util.Map" resultMap="queryOrderMealRecordMap">
+        select
+        order_meal_info.order_meal_date,
+        order_meal_info.meal_type,
+        order_meal_info.track_face,
+        order_meal_info.user_name,
+        order_meal_info.order_time
+        from (select * from order_meal_info where del_flag = '0') order_meal_info
+        where 0=0
+        <choose>
+            <when test="mealType == null">
+                and order_meal_info.meal_type in ('L','D')
+            </when>
+            <otherwise>
+                and order_meal_info.meal_type = #{mealType}
+            </otherwise>
+        </choose>
+        <if test="startTime != null">
+            and order_meal_info.order_meal_date >= #{startTime}
+        </if>
+        <if test="endTime != null">
+            <![CDATA[ and order_meal_info.order_meal_date <= #{endTime} ]]>
+        </if>
+        GROUP BY order_meal_info.order_meal_date, order_meal_info.meal_info_id
+        ORDER BY order_meal_info.order_meal_date desc
+        <if test="isPage == 1">
+            limit #{no},#{limit}
+        </if>
     </select>
 
 
-    <select id="analysisOrderMealRecord" parameterType="com.dto.OrderMealRecordSelectDTO" resultMap="selectOrderMealRecordMap">
+    <select id="analysisOrderMealRecord" parameterType="java.util.Map" resultMap="selectOrderMealRecordMap">
 
         select
         order_meal_info.order_meal_date,
@@ -50,17 +71,25 @@
         count(*) as number
         from (select * from order_meal_info where del_flag = '0') order_meal_info
         where 0=0
+        <choose>
+            <when test="mealType == null">
+                and order_meal_info.meal_type in ('L','D')
+            </when>
+            <otherwise>
+                and order_meal_info.meal_type = #{mealType}
+            </otherwise>
+        </choose>
         <if test="startTime != null">
             and order_meal_info.order_meal_date >= #{startTime}
         </if>
         <if test="endTime != null">
             <![CDATA[ and order_meal_info.order_meal_date <= #{endTime} ]]>
         </if>
-        and order_meal_info.meal_type = #{mealType}
+        GROUP BY order_meal_info.meal_type,order_meal_info.order_meal_date
+        ORDER BY order_meal_info.order_meal_date desc
         <if test="isPage == 1">
             limit #{no},#{limit}
         </if>
-        GROUP BY order_meal_info.meal_info_id
     </select>
 
 </mapper>

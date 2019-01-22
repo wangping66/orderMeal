@@ -3,20 +3,32 @@ package com.service.impl;
 import com.dto.OrderMealDTO;
 import com.dto.OrderMealRecordSelectDTO;
 import com.entity.OrderMealInfo;
+import com.enums.ExcelTemplateEnum;
 import com.enums.MealTypeEnum;
 import com.mapper.OrderMealInfoMapper;
 import com.model.OrderMealInfoModel;
+import com.service.DownloadService;
 import com.service.IOrderMealInfoService;
 import com.common.base.BaseServiceImpl;
+import com.utils.ExcelUtils;
+import com.vo.AnalysisOrderMealRecordVO;
 import com.vo.MealTypeDropdownVO;
+import com.vo.MealTypeVO;
 import com.vo.QueryOrderMealRecordVO;
+import org.apache.poi.openxml4j.exceptions.InvalidFormatException;
+import org.apache.poi.ss.usermodel.*;
 import org.springframework.beans.BeanUtils;
 import org.springframework.stereotype.Service;
+import org.springframework.util.ClassUtils;
+import com.constant.HttpResponseCode;
+
 
 import javax.annotation.Resource;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.List;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+import java.io.*;
+import java.text.SimpleDateFormat;
+import java.util.*;
 
 /**
  * <p>
@@ -32,6 +44,9 @@ public class OrderMealInfoServiceImpl extends BaseServiceImpl<OrderMealInfoMappe
 
     @Resource
     private OrderMealInfoMapper orderMealInfoMapper;
+
+    @Resource
+    private DownloadService downloadService;
 
     @Override
     public OrderMealInfo saveOrderMealRecord(OrderMealDTO orderMealDTO) {
@@ -53,27 +68,122 @@ public class OrderMealInfoServiceImpl extends BaseServiceImpl<OrderMealInfoMappe
     }
 
     @Override
-    public MealTypeDropdownVO getMealTypeList() {
+    public MealTypeDropdownVO getMealTypeMap() {
         MealTypeDropdownVO mealTypeDropdownVO = new MealTypeDropdownVO();
-        HashMap<String,String> hashMap = new HashMap<>();
-        hashMap.put(MealTypeEnum.L.getValue(),MealTypeEnum.valueOf("L").getLabel());
-        hashMap.put(MealTypeEnum.D.getValue(),MealTypeEnum.valueOf("D").getLabel());
-        mealTypeDropdownVO.setMealTypeMap(hashMap);
+        List list = new ArrayList();
+        MealTypeVO mealTypeVO1 = new MealTypeVO();
+        MealTypeVO mealTypeVO2 = new MealTypeVO();
+        mealTypeVO1.setType(MealTypeEnum.L.getValue());
+        mealTypeVO1.setName(MealTypeEnum.valueOf("L").getLabel());
+        mealTypeVO2.setType(MealTypeEnum.D.getValue());
+        mealTypeVO2.setName(MealTypeEnum.valueOf("D").getLabel());
+        list.add(mealTypeVO1);
+        list.add(mealTypeVO2);
+        mealTypeDropdownVO.setMealTypeMap(list);
         return mealTypeDropdownVO;
     }
 
     @Override
-    public List analysisOrderMealRecord(OrderMealRecordSelectDTO orderMealRecordSelectDTO) {
-        List list = orderMealInfoMapper.analysisOrderMealRecord(orderMealRecordSelectDTO);
+    public List<AnalysisOrderMealRecordVO> analysisOrderMealRecord(OrderMealRecordSelectDTO orderMealRecordSelectDTO) {
 
-        return list;
+        Map<String,Object> selectMap = new HashMap<>();
+        selectMap.put("mealType",orderMealRecordSelectDTO.getMealType());
+        selectMap.put("startTime",orderMealRecordSelectDTO.getStartTime());
+        selectMap.put("endTime",orderMealRecordSelectDTO.getEndTime());
+        selectMap.put("isPage",orderMealRecordSelectDTO.getIsPage());
+        selectMap.put("no",orderMealRecordSelectDTO.getNo());
+        selectMap.put("limit",orderMealRecordSelectDTO.getLimit());
+
+        List<AnalysisOrderMealRecordVO> analysisOrderMealRecordVOs = orderMealInfoMapper.analysisOrderMealRecord(selectMap);
+        for (AnalysisOrderMealRecordVO analysisOrderMealRecordVO : analysisOrderMealRecordVOs) {
+            analysisOrderMealRecordVO.setMealType("L".equals(analysisOrderMealRecordVO.getMealType()) ?"午餐":"晚餐");
+        }
+        return analysisOrderMealRecordVOs;
     }
 
     @Override
     public List<QueryOrderMealRecordVO> queryOrderMealRecord(OrderMealRecordSelectDTO orderMealRecordSelectDTO) {
 
-        List<QueryOrderMealRecordVO> queryOrderMealRecordVOS = orderMealInfoMapper.QueryOrderMealRecord();
+        Map<String,Object> selectMap = new HashMap<>();
+        selectMap.put("mealType",orderMealRecordSelectDTO.getMealType());
+        selectMap.put("startTime",orderMealRecordSelectDTO.getStartTime());
+        selectMap.put("endTime",orderMealRecordSelectDTO.getEndTime());
+        selectMap.put("isPage",orderMealRecordSelectDTO.getIsPage());
+        selectMap.put("no",orderMealRecordSelectDTO.getNo());
+        selectMap.put("limit",orderMealRecordSelectDTO.getLimit());
+        List<QueryOrderMealRecordVO> queryOrderMealRecordVOS = orderMealInfoMapper.queryOrderMealRecord(selectMap);
+        for (QueryOrderMealRecordVO queryOrderMealRecordVO : queryOrderMealRecordVOS) {
+            queryOrderMealRecordVO.setMealType("L".equals(queryOrderMealRecordVO.getMealType()) ?"午餐":"晚餐");
+        }
         return queryOrderMealRecordVOS;
+    }
+
+    /*@Override
+    public Result export(OrderMealRecordSelectDTO orderMealRecordSelectDTO) {
+        // 第一步，创建一个HSSFWorkbook，对应一个Excel文件
+        HSSFWorkbook wb = new HSSFWorkbook();
+
+        // 第二步，在workbook中添加一个sheet,对应Excel文件中的sheet
+        HSSFSheet sheet = wb.createSheet("sheet");
+
+        // 第三步，在sheet中添加表头第0行,注意老版本poi对Excel的行数列数有限制
+        HSSFRow row = sheet.createRow(0);
+
+        // 第四步，创建单元格，并设置值表头 设置表头居中
+        HSSFCellStyle style = wb.createCellStyle();
+        style.setAlignment(HSSFCellStyle.ALIGN_CENTER); // 创建一个居中格式
+
+        //声明列对象
+        HSSFCell cell = null;
+
+        //创建标题
+        String []title = new String[]{"日期","餐别","订餐人数"};
+        for(int i=0;i<title.length;i++){
+            cell = row.createCell(i);
+            cell.setCellValue(title[i]);
+            cell.setCellStyle(style);
+        }
+
+        return null;
+    }
+*/
+    @Override
+    public void export1(HttpServletRequest request, HttpServletResponse response, OrderMealRecordSelectDTO orderMealRecordSelectDTO) throws IOException, InvalidFormatException {
+        SimpleDateFormat formatter = new SimpleDateFormat(HttpResponseCode.FORMAT_DATE);
+        StringBuilder fileName = new StringBuilder("订餐信息").append(formatter.format(new Date())).append(".xlsx");
+        formatter.applyPattern(HttpResponseCode.FORMAT_DATE);
+        //QueryResults<CompanyListVO> resultList = getCompanyPageByFilters(null, dto);
+        ByteArrayOutputStream output = new ByteArrayOutputStream();
+        InputStream inputStream = ClassUtils.getDefaultClassLoader().getResourceAsStream(HttpResponseCode.FILE_TEMPLATE_PATH + HttpResponseCode.SLASH + ExcelTemplateEnum.COMPANY_EXPORT.getLabel());
+        Workbook wb = WorkbookFactory.create(inputStream);
+
+        Sheet sheet = wb.getSheetAt(0);
+        CellStyle bodyStyle = ExcelUtils.getDefaultBodyStyle(sheet.getWorkbook());
+        CellStyle dateStyle = ExcelUtils.getDefaultDatetimeStyle(sheet.getWorkbook());
+        int line = 1;
+        int colIndex = 0;
+        Map<String,Object> selectMap = new HashMap<>();
+        selectMap.put("mealType",orderMealRecordSelectDTO.getMealType());
+        selectMap.put("startTime",orderMealRecordSelectDTO.getStartTime());
+        selectMap.put("endTime",orderMealRecordSelectDTO.getEndTime());
+        selectMap.put("isPage",orderMealRecordSelectDTO.getIsPage());
+        selectMap.put("no",orderMealRecordSelectDTO.getNo());
+        selectMap.put("limit",orderMealRecordSelectDTO.getLimit());
+        List<AnalysisOrderMealRecordVO> analysisOrderMealRecordVOs = orderMealInfoMapper.analysisOrderMealRecord(selectMap);
+        //List<CompanyListVO> companyListVOs = resultList.getResults();
+        if (analysisOrderMealRecordVOs != null && analysisOrderMealRecordVOs.size() > 0) {
+            for (AnalysisOrderMealRecordVO analysisOrderMealRecordVO : analysisOrderMealRecordVOs) {
+                Row row = sheet.createRow(line++);
+                downloadService.setBodyCellValue(row, colIndex++, formatter.format(analysisOrderMealRecordVO.getOrderMealDate()), bodyStyle, dateStyle);
+                downloadService.setBodyCellValue(row, colIndex++, "L".equals(analysisOrderMealRecordVO.getMealType()) ?"午餐":"晚餐",bodyStyle, dateStyle);
+                downloadService.setBodyCellValue(row, colIndex++, analysisOrderMealRecordVO.getNumber(), bodyStyle, dateStyle);
+                colIndex = 0;
+            }
+        }
+        wb.write(output);
+        output.flush();
+        output.close();
+        ExcelUtils.export(request, response, output.toByteArray(), fileName.toString());
     }
 
     private void judgeMealType(Date orderTime){

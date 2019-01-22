@@ -8,6 +8,7 @@ import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Select;
 
 import java.util.List;
+import java.util.Map;
 
 /**
  * <p>
@@ -20,11 +21,7 @@ import java.util.List;
 
 public interface OrderMealInfoMapper extends SuperMapper<OrderMealInfo>{
 
-    String selectRecord1();
+   List analysisOrderMealRecord(Map<String,Object> selectMap);
 
-
-   List analysisOrderMealRecord(OrderMealRecordSelectDTO orderMealRecordSelectDTO);
-
-
-    List<QueryOrderMealRecordVO> QueryOrderMealRecord();
+    List<QueryOrderMealRecordVO> queryOrderMealRecord(Map<String,Object> selectMap);
 }
