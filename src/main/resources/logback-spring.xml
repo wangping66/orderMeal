@@ -1,0 +1,86 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<!-- 从高到地低 OFF 、 FATAL 、 ERROR 、 WARN 、 INFO 、 DEBUG 、 TRACE 、 ALL -->
+<!-- 日志输出规则  根据当前ROOT 级别，日志输出时，级别高于root默认的级别时  会输出 -->
+<!-- 以下  每个配置的 filter 是过滤掉输出文件里面，会出现高级别文件，依然出现低级别的日志信息，通过filter 过滤只记录本级别的日志-->
+
+
+<!-- 属性描述 scan：设置为true时，配置文件如果发生改变，将会被重新加载，默认值为true scanPeriod:设置监测配置文件是否有修改的时间间隔，如果没有给出时间单位，默认单位是毫秒。当scan为true时，此属性生效。默认的时间间隔为1分钟。
+    debug:当此属性设置为true时，将打印出logback内部日志信息，实时查看logback运行状态。默认值为false。 -->
+<configuration scan="true" scanPeriod="60 seconds" debug="true">
+    <!-- 基础参数定义 -->
+    <springProperty scope="context" name="serviceName" source="spring.application.name" defaultValue="orderMeal"/>
+    <springProperty scope="context" name="stashHost" source="logging.stash-host" defaultValue="180.117.163.162:5044"/>
+    <springProperty scope="context" name="logDir" source="logging.dir" defaultValue="../sun-logs"/>
+
+    <!-- 服务名称 -->
+    <property name="SERVICE_NAME" value="orderMeal"/>
+    <!--&lt;!&ndash; 服务名称 &ndash;&gt;
+    <property name="basePackage" value="com.facemeng.sun"/>-->
+    <!-- 定义日志文件 输入位置 -->
+    <property name="LOG_DIR" value="${logDir}"/>
+    <!-- 日志最大的历史 30天 -->
+    <property name="maxHistory" value="30"/>
+    <!-- 输出Logstash 服务地址 -->
+    <property name="STASH_HOST" value="${stashHost}"/>
+
+    <!-- ConsoleAppender 控制台标准输出日志 -->
+    <appender name="STDOUT" class="ch.qos.logback.core.ConsoleAppender">
+        <!-- 对日志进行格式化 -->
+        <encoder>
+            <pattern>%d{yyyy-MM-dd HH:mm:ss} [%thread] %-5level %logger -%msg%n</pattern>
+        </encoder>
+    </appender>
+
+    <!-- 日志信息输出到文件 -->
+    <!-- 滚动记录文件-->
+    <appender name="FILE" class="ch.qos.logback.core.rolling.RollingFileAppender">
+        <!-- 过滤器，只记录INFO级别的日志 -->
+        <filter class="ch.qos.logback.classic.filter.ThresholdFilter">
+            <level>INFO</level>
+        </filter>
+        <!-- 最常用的滚动策略，它根据时间来制定滚动策略.既负责滚动也负责出发滚动 -->
+        <rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
+            <!--日志输出位置  可相对、和绝对路径 -->
+            <!-- 按天回滚 daily -->
+            <fileNamePattern>${LOG_DIR}/${SERVICE_NAME}/%d{yyyy-MM-dd}.log</fileNamePattern>
+            <!-- 日志最大的历史 maxHistory 天 -->
+            <maxHistory>${maxHistory}</maxHistory>
+        </rollingPolicy>
+        <encoder>
+            <!--<pattern>%yellow(%date{yyyy-MM-dd HH:mm:ss}) |%highlight(%-5level)  |%green(%logger:%line) |%black(%msg%n)</pattern>-->
+
+            <pattern>%d{yyyy-MM-dd HH:mm:ss.SSS} [%thread] %-5level %logger - %msg%n</pattern>
+        </encoder>
+    </appender>
+
+    <!-- 输出Logstash -->
+    <appender name="LOGSTASH" class="net.logstash.logback.appender.LogstashTcpSocketAppender">
+        <!-- 过滤器，只记录INFO级别的日志 -->
+        <filter class="ch.qos.logback.classic.filter.ThresholdFilter">
+            <level>INFO</level>
+        </filter>
+        <destination>${STASH_HOST}</destination>
+        <!-- encoder必须配置,有多种可选 -->
+        <encoder charset="UTF-8"
+                 class="net.logstash.logback.encoder.LogstashEncoder">
+            <!-- "serviceName":"" 的作用是指定创建索引的名字时用，并且在生成的文档中会多了这个字段  -->
+            <customFields>{"serviceName":"${SERVICE_NAME}"}</customFields>
+        </encoder>
+    </appender>
+
+    <!-- 定义一些jar包日志输出级别 -->
+    <logger name="${basePackage}" level="DEBUG"/>
+
+    <!-- 本地环境 多个使用逗号隔开 -->
+    <springProfile name="dev,prod">
+        <root level="INFO">
+            <!-- 控制台标准输出 -->
+            <appender-ref ref="STDOUT"/>
+            <!-- 文件输出 -->
+            <appender-ref ref="FILE"/>
+            <!-- 输出Logstash 一般不打开-->
+            <!--<appender-ref ref="LOGSTASH"/>-->
+        </root>
+    </springProfile>
+</configuration>

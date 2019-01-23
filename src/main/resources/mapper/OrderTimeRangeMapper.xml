@@ -47,6 +47,7 @@
             </otherwise>
         </choose>
         GROUP BY order_time_range.meal_type
+        ORDER BY order_time_range.meal_type desc
     </select>
 
 

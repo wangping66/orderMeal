@@ -2,6 +2,7 @@ package com.dto;
 
 
 
+import com.fasterxml.jackson.annotation.JsonFormat;
 import lombok.Data;
 import com.alibaba.fastjson.annotation.JSONField;
 import java.util.Date;
@@ -13,7 +14,7 @@ public class OrderMealDTO {
     /**
      * 预定日期
      */
-    @JSONField(format = "yyyy-MM-dd")
+    @JsonFormat(pattern="yyyy-MM-dd",timezone="GMT+8")
     private Date orderMealDate;
     /**
      * 用户名称
@@ -30,7 +31,7 @@ public class OrderMealDTO {
     /**
      * 预定时间
      */
-    @JSONField(format = "HH:MM")
+    @JsonFormat(pattern="HH:mm",timezone="GMT+8")
     private Date orderTime;
 
 

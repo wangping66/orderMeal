@@ -13,6 +13,7 @@ import com.service.IOrderTimeRangeService;
 import com.common.base.BaseServiceImpl;
 import com.vo.AnalysisOrderMealRecordVO;
 import com.vo.OrderTimeRangeVO;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
 import javax.annotation.Resource;
@@ -30,6 +31,7 @@ import java.util.Map;
  * @since 2019-01-17
  */
 @Service
+@Slf4j
 public class OrderTimeRangeServiceImpl extends BaseServiceImpl<OrderTimeRangeMapper, OrderTimeRange,OrderTimeRangeModel>  implements IOrderTimeRangeService {
 
     @Resource
@@ -37,11 +39,13 @@ public class OrderTimeRangeServiceImpl extends BaseServiceImpl<OrderTimeRangeMap
 
     @Override
     public void updateLunch(OrderTimeRangeDTO orderTimeRangeDTO) {
+        log.info("开始修改餐别允许预定时间范围: {}",orderTimeRangeDTO);
         OrderTimeRange orderTimeRange = baseMapper.selectById(orderTimeRangeDTO.getMealType());
         orderTimeRange.setDelFlag("0");
         orderTimeRange.setStartTime(orderTimeRangeDTO.getStartTime());
         orderTimeRange.setEndTime(orderTimeRangeDTO.getEndTime());
         updateById(orderTimeRange);
+        log.info("修改后的餐别允许预定时间范围: {}",orderTimeRange);
         //:通过穿过来的数据找到当前要修改的餐别的数据
 
     }
@@ -50,18 +54,24 @@ public class OrderTimeRangeServiceImpl extends BaseServiceImpl<OrderTimeRangeMap
     public void logicDeleteOrderMealTimeRange(String mealType) {
         Map<String,Object> selectMap = new HashMap<>();
         selectMap.put("mealType",mealType);
+        String mealTypeToChinese = "L".equals(mealType) ?"午餐":"晚餐";
+        log.info("逻辑删除允许预定时间范围的餐别为: {}",mealTypeToChinese);
         orderTimeRangeMapper.logicDeleteOrderMealTimeRange(selectMap);
+        log.info("逻辑删除:{}"+"的允许预定时间范围成功",mealTypeToChinese);
     }
 
     @Override
     public List<OrderTimeRangeVO> getTimeRange(OrderTimeRangeForQueryDTO orderTimeRangeForQueryDTO) throws Exception {
+        log.info("开始查看餐别可以预定时间范围，接收的参数为: {}",orderTimeRangeForQueryDTO);
         List<OrderTimeRangeVO> orderTimeRangeVOList = orderTimeRangeMapper.getTimeRange(orderTimeRangeForQueryDTO);
         if(null == orderTimeRangeVOList || orderTimeRangeVOList.size() ==0 ){
+            log.info("当前没有设定该餐别可以预定时间范围或者接收参数有误");
             return Collections.EMPTY_LIST;
         }
         for (OrderTimeRangeVO orderTimeRangeVO : orderTimeRangeVOList) {
             orderTimeRangeVO.setMealTypeToChinese("L".equals(orderTimeRangeVO.getMealType()) ?"午餐":"晚餐");
         }
+        log.info("当前设定的餐别可以预定时间范围为:{}",orderTimeRangeVOList);
         return orderTimeRangeVOList;
     }
 }

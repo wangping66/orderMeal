@@ -22,7 +22,7 @@ public class OrderMealRecordSelectDTO extends BaseParam {
     @ApiModelProperty(value = "订餐类别")
     private String mealType;
 
-    @ApiModelProperty(value = "订餐用户的名字")
+    @ApiModelProperty(value = "订餐用户")
     private String userName;
 
 
