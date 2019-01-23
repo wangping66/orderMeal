@@ -85,8 +85,8 @@
         <if test="endTime != null">
             <![CDATA[ and order_meal_info.order_meal_date <= #{endTime} ]]>
         </if>
-        GROUP BY order_meal_info.meal_type,order_meal_info.order_meal_date
-        ORDER BY order_meal_info.order_meal_date desc
+        GROUP BY order_meal_info.order_meal_date,order_meal_info.meal_type
+        ORDER BY order_meal_info.order_meal_date desc,order_meal_info.meal_type desc
         <if test="isPage == 1">
             limit #{no},#{limit}
         </if>
