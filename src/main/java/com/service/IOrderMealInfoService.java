@@ -1,5 +1,6 @@
 package com.service;
 
+import com.common.PageResult;
 import com.dto.OrderMealDTO;
 import com.dto.OrderMealRecordSelectDTO;
 import com.entity.OrderMealInfo;
@@ -33,9 +34,9 @@ public interface IOrderMealInfoService extends BaseService<OrderMealInfoModel>{
      */
     MealTypeDropdownVO getMealTypeMap();
 
-    List<AnalysisOrderMealRecordVO> analysisOrderMealRecord(OrderMealRecordSelectDTO orderMealRecordSelectDTO);
+    PageResult<AnalysisOrderMealRecordVO> analysisOrderMealRecord(OrderMealRecordSelectDTO orderMealRecordSelectDTO);
 
-    List<QueryOrderMealRecordVO> queryOrderMealRecord(OrderMealRecordSelectDTO orderMealRecordSelectDTO);
+    PageResult<QueryOrderMealRecordVO> queryOrderMealRecord(OrderMealRecordSelectDTO orderMealRecordSelectDTO);
 
     /**
      * 导出记录

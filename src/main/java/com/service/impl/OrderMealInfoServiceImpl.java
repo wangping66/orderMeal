@@ -1,5 +1,6 @@
 package com.service.impl;
 
+import com.common.PageResult;
 import com.dto.OrderMealDTO;
 import com.dto.OrderMealRecordSelectDTO;
 import com.entity.OrderMealInfo;
@@ -84,38 +85,50 @@ public class OrderMealInfoServiceImpl extends BaseServiceImpl<OrderMealInfoMappe
     }
 
     @Override
-    public List<AnalysisOrderMealRecordVO> analysisOrderMealRecord(OrderMealRecordSelectDTO orderMealRecordSelectDTO) {
-
+    public PageResult<AnalysisOrderMealRecordVO> analysisOrderMealRecord(OrderMealRecordSelectDTO orderMealRecordSelectDTO) {
+        PageResult<AnalysisOrderMealRecordVO> result = new PageResult<>();
         Map<String,Object> selectMap = new HashMap<>();
         selectMap.put("mealType",orderMealRecordSelectDTO.getMealType());
         selectMap.put("startTime",orderMealRecordSelectDTO.getStartTime());
         selectMap.put("endTime",orderMealRecordSelectDTO.getEndTime());
+        List<AnalysisOrderMealRecordVO> analysisOrderMealRecordVOs;
+        int total = orderMealInfoMapper.analysisOrderMealRecord(selectMap).size();
         selectMap.put("isPage",orderMealRecordSelectDTO.getIsPage());
         selectMap.put("no",(orderMealRecordSelectDTO.getNo()-1)*orderMealRecordSelectDTO.getLimit());
         selectMap.put("limit",orderMealRecordSelectDTO.getLimit());
 
-        List<AnalysisOrderMealRecordVO> analysisOrderMealRecordVOs = orderMealInfoMapper.analysisOrderMealRecord(selectMap);
+
+        analysisOrderMealRecordVOs = orderMealInfoMapper.analysisOrderMealRecord(selectMap);
+
         for (AnalysisOrderMealRecordVO analysisOrderMealRecordVO : analysisOrderMealRecordVOs) {
             analysisOrderMealRecordVO.setMealType("L".equals(analysisOrderMealRecordVO.getMealType()) ?"午餐":"晚餐");
         }
-        return analysisOrderMealRecordVOs;
+        result.setRecords(analysisOrderMealRecordVOs);
+        result.setTotal(total);
+        return result;
     }
 
     @Override
-    public List<QueryOrderMealRecordVO> queryOrderMealRecord(OrderMealRecordSelectDTO orderMealRecordSelectDTO) {
-
+    public PageResult<QueryOrderMealRecordVO> queryOrderMealRecord(OrderMealRecordSelectDTO orderMealRecordSelectDTO) {
+        PageResult<QueryOrderMealRecordVO> result = new PageResult<>();
         Map<String,Object> selectMap = new HashMap<>();
         selectMap.put("mealType",orderMealRecordSelectDTO.getMealType());
         selectMap.put("startTime",orderMealRecordSelectDTO.getStartTime());
         selectMap.put("endTime",orderMealRecordSelectDTO.getEndTime());
+        selectMap.put("userName",orderMealRecordSelectDTO.getUserName());
+        List<QueryOrderMealRecordVO> queryOrderMealRecordVOS;
+        int total = orderMealInfoMapper.queryOrderMealRecord(selectMap).size();
         selectMap.put("isPage",orderMealRecordSelectDTO.getIsPage());
         selectMap.put("no",(orderMealRecordSelectDTO.getNo()-1)*orderMealRecordSelectDTO.getLimit());
         selectMap.put("limit",orderMealRecordSelectDTO.getLimit());
-        List<QueryOrderMealRecordVO> queryOrderMealRecordVOS = orderMealInfoMapper.queryOrderMealRecord(selectMap);
+        queryOrderMealRecordVOS = orderMealInfoMapper.queryOrderMealRecord(selectMap);
+
         for (QueryOrderMealRecordVO queryOrderMealRecordVO : queryOrderMealRecordVOS) {
             queryOrderMealRecordVO.setMealType("L".equals(queryOrderMealRecordVO.getMealType()) ?"午餐":"晚餐");
         }
-        return queryOrderMealRecordVOS;
+        result.setRecords(queryOrderMealRecordVOS);
+        result.setTotal(total);
+        return result;
     }
 
     /*@Override
@@ -148,7 +161,7 @@ public class OrderMealInfoServiceImpl extends BaseServiceImpl<OrderMealInfoMappe
     }
 */
     @Override
-    public void export1(HttpServletRequest request, HttpServletResponse response, OrderMealRecordSelectDTO orderMealRecordSelectDTO) throws IOException, InvalidFormatException {
+    public void   export1(HttpServletRequest request, HttpServletResponse response, OrderMealRecordSelectDTO orderMealRecordSelectDTO) throws IOException, InvalidFormatException {
         SimpleDateFormat formatter = new SimpleDateFormat(HttpResponseCode.FORMAT_DATE);
         StringBuilder fileName = new StringBuilder("订餐信息").append(formatter.format(new Date())).append(".xlsx");
         formatter.applyPattern(HttpResponseCode.FORMAT_DATE);

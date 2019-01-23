@@ -1,6 +1,7 @@
 package com.controller;
 
 
+import com.common.PageResult;
 import com.common.Result;
 import com.dto.OrderMealDTO;
 import com.dto.OrderMealRecordSelectDTO;
@@ -16,8 +17,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-import java.util.List;
-import java.util.Map;
 
 @Slf4j
 @RestController
@@ -46,16 +45,16 @@ public class OrderMealController {
     @ApiOperation(value = "统计订餐记录")
     @PostMapping("/analysis")
     public Result analysisOrderMealRecord(@RequestBody OrderMealRecordSelectDTO orderMealRecordSelectDTO) {
-        List<AnalysisOrderMealRecordVO> analysisOrderMealRecordVOS = iOrderMealInfoService.analysisOrderMealRecord(orderMealRecordSelectDTO);
-        return Result.builder().ok("统计订餐记录成功").data(analysisOrderMealRecordVOS).total(analysisOrderMealRecordVOS.size()).build();
+        PageResult<AnalysisOrderMealRecordVO> analysisOrderMealRecordVOPageResult = iOrderMealInfoService.analysisOrderMealRecord(orderMealRecordSelectDTO);
+        return Result.builder().ok("统计订餐记录成功").data(analysisOrderMealRecordVOPageResult).total(analysisOrderMealRecordVOPageResult.getTotal()).build();
 
     }
 
     @ApiOperation(value = "订餐记录查询")
     @PostMapping("/query")
     public Result queryOrderMealRecord(@RequestBody OrderMealRecordSelectDTO orderMealRecordSelectDTO) {
-        List<QueryOrderMealRecordVO> queryOrderMealRecordVOS = iOrderMealInfoService.queryOrderMealRecord(orderMealRecordSelectDTO);
-        return Result.builder().ok("订餐记录查询成功").data(queryOrderMealRecordVOS).total(queryOrderMealRecordVOS.size()).build();
+        PageResult<QueryOrderMealRecordVO> queryOrderMealRecordVOPageResult = iOrderMealInfoService.queryOrderMealRecord(orderMealRecordSelectDTO);
+        return Result.builder().ok("订餐记录查询成功").data(queryOrderMealRecordVOPageResult).total(queryOrderMealRecordVOPageResult.getTotal()).build();
 
     }
 

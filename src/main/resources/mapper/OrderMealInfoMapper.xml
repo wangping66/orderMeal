@@ -55,6 +55,9 @@
         <if test="endTime != null">
             <![CDATA[ and order_meal_info.order_meal_date <= #{endTime} ]]>
         </if>
+        <if test="userName != null">
+            and order_meal_info.user_name like concat('%',#{userName},'%')
+        </if>
         GROUP BY order_meal_info.order_meal_date, order_meal_info.meal_info_id
         ORDER BY order_meal_info.order_meal_date desc
         <if test="isPage == 1">
