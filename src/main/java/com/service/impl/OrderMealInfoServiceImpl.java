@@ -91,7 +91,7 @@ public class OrderMealInfoServiceImpl extends BaseServiceImpl<OrderMealInfoMappe
         selectMap.put("startTime",orderMealRecordSelectDTO.getStartTime());
         selectMap.put("endTime",orderMealRecordSelectDTO.getEndTime());
         selectMap.put("isPage",orderMealRecordSelectDTO.getIsPage());
-        selectMap.put("no",orderMealRecordSelectDTO.getNo());
+        selectMap.put("no",(orderMealRecordSelectDTO.getNo()-1)*orderMealRecordSelectDTO.getLimit());
         selectMap.put("limit",orderMealRecordSelectDTO.getLimit());
 
         List<AnalysisOrderMealRecordVO> analysisOrderMealRecordVOs = orderMealInfoMapper.analysisOrderMealRecord(selectMap);
@@ -109,7 +109,7 @@ public class OrderMealInfoServiceImpl extends BaseServiceImpl<OrderMealInfoMappe
         selectMap.put("startTime",orderMealRecordSelectDTO.getStartTime());
         selectMap.put("endTime",orderMealRecordSelectDTO.getEndTime());
         selectMap.put("isPage",orderMealRecordSelectDTO.getIsPage());
-        selectMap.put("no",orderMealRecordSelectDTO.getNo());
+        selectMap.put("no",orderMealRecordSelectDTO.getNo()-1*orderMealRecordSelectDTO.getLimit());
         selectMap.put("limit",orderMealRecordSelectDTO.getLimit());
         List<QueryOrderMealRecordVO> queryOrderMealRecordVOS = orderMealInfoMapper.queryOrderMealRecord(selectMap);
         for (QueryOrderMealRecordVO queryOrderMealRecordVO : queryOrderMealRecordVOS) {
