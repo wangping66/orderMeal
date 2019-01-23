@@ -1,6 +1,7 @@
 package com.service.impl;
 
 import com.alibaba.fastjson.JSONArray;
+import com.baomidou.mybatisplus.mapper.EntityWrapper;
 import com.common.PageResult;
 import com.dto.OrderMealDTO;
 import com.dto.OrderMealRecordSelectDTO;
@@ -57,16 +58,32 @@ public class OrderMealInfoServiceImpl extends BaseServiceImpl<OrderMealInfoMappe
     public OrderMealInfo saveOrderMealRecord(OrderMealDTO orderMealDTO) {
         //1：根据传过来的订餐时间判断为午餐还是晚餐
 
-
+        log.info("开始根据传过来的订餐时间判断为午餐还是晚餐");
         Date orderTime = orderMealDTO.getOrderTime();
         String mealType = judgeMealType(orderTime);
+        log.info("订餐类型为: {}",mealType);
         if(mealType == null){
+            log.info("那这条记录就不会保存到数据库中,原因是订餐类型经过时间判断为: {}",mealType);
             return new OrderMealInfo().setMealType("出现这个表示添加订餐记录失败，原因是订餐时间不在预定范围");
         }
         OrderMealInfo orderMealInfo = new OrderMealInfo();
         BeanUtils.copyProperties(orderMealDTO,orderMealInfo);
         orderMealInfo.setMealType(mealType);
-        baseMapper.insert(orderMealInfo);
+        log.info("开始保存订餐记录: {}",orderMealInfo);
+        //TODO 要做去重
+        EntityWrapper ew = new EntityWrapper();
+        ew.eq("order_meal_date",orderMealDTO.getOrderMealDate());
+        ew.eq("user_name",orderMealDTO.getUserName());
+        ew.eq("meal_type",orderMealInfo.getMealType());
+        OrderMealInfo orderMealInfo1 = selectOne(ew);
+        if(orderMealInfo1 == null){
+            baseMapper.insert(orderMealInfo);
+        }else {
+            log.info("那这条记录就不会保存到数据库中,原因是这样的数据已有了: {}",orderMealInfo1.toString());
+            return new OrderMealInfo().setMealType("出现这个表示添加订餐记录失败,原因是这样的数据已有了");
+        }
+
+
         return orderMealInfo;
     }
     @Override
