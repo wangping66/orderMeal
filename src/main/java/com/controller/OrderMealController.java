@@ -8,6 +8,7 @@ import com.entity.OrderMealInfo;
 import com.service.IOrderMealInfoService;
 import com.vo.AnalysisOrderMealRecordVO;
 import com.vo.MealTypeDropdownVO;
+import com.vo.QueryOrderMealRecordVO;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import lombok.extern.slf4j.Slf4j;
@@ -46,14 +47,15 @@ public class OrderMealController {
     @PostMapping("/analysis")
     public Result analysisOrderMealRecord(@RequestBody OrderMealRecordSelectDTO orderMealRecordSelectDTO) {
         List<AnalysisOrderMealRecordVO> analysisOrderMealRecordVOS = iOrderMealInfoService.analysisOrderMealRecord(orderMealRecordSelectDTO);
-        return Result.builder().ok("统计订餐记录成功").data(analysisOrderMealRecordVOS).build();
+        return Result.builder().ok("统计订餐记录成功").data(analysisOrderMealRecordVOS).total(analysisOrderMealRecordVOS.size()).build();
 
     }
 
     @ApiOperation(value = "订餐记录查询")
     @PostMapping("/query")
     public Result queryOrderMealRecord(@RequestBody OrderMealRecordSelectDTO orderMealRecordSelectDTO) {
-        return Result.builder().ok("订餐记录查询成功").data(iOrderMealInfoService.queryOrderMealRecord(orderMealRecordSelectDTO)).build();
+        List<QueryOrderMealRecordVO> queryOrderMealRecordVOS = iOrderMealInfoService.queryOrderMealRecord(orderMealRecordSelectDTO);
+        return Result.builder().ok("订餐记录查询成功").data(queryOrderMealRecordVOS).total(queryOrderMealRecordVOS.size()).build();
 
     }
 
