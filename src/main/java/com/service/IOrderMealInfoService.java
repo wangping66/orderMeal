@@ -27,8 +27,6 @@ public interface IOrderMealInfoService extends BaseService<OrderMealInfoModel>{
 
     OrderMealInfo saveOrderMealRecord(OrderMealDTO orderMealDTO);
 
-    String getOrderMealRecord();
-
     /**
      * 获取餐别类型下拉框
      */

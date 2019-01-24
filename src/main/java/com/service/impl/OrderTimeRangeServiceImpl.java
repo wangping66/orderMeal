@@ -44,7 +44,8 @@ public class OrderTimeRangeServiceImpl extends BaseServiceImpl<OrderTimeRangeMap
         orderTimeRange.setDelFlag("0");
         orderTimeRange.setStartTime(orderTimeRangeDTO.getStartTime());
         orderTimeRange.setEndTime(orderTimeRangeDTO.getEndTime());
-        updateById(orderTimeRange);
+        boolean b = updateById(orderTimeRange);
+
         log.info("修改后的餐别允许预定时间范围: {}",orderTimeRange);
         //:通过穿过来的数据找到当前要修改的餐别的数据
 

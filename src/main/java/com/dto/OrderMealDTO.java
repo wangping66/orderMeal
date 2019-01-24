@@ -22,8 +22,8 @@ public class OrderMealDTO {
     private String userName;
     /**
      * 餐别
-     */
-    private String mealType;
+     *//*
+    private String mealType;*/
     /**
      * 抓拍人脸图像
      */

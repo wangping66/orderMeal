@@ -70,7 +70,6 @@ public class OrderMealInfoServiceImpl extends BaseServiceImpl<OrderMealInfoMappe
         BeanUtils.copyProperties(orderMealDTO,orderMealInfo);
         orderMealInfo.setMealType(mealType);
         log.info("开始保存订餐记录: {}",orderMealInfo);
-        //TODO 要做去重
         EntityWrapper ew = new EntityWrapper();
         ew.eq("order_meal_date",orderMealDTO.getOrderMealDate());
         ew.eq("user_name",orderMealDTO.getUserName());
@@ -78,17 +77,12 @@ public class OrderMealInfoServiceImpl extends BaseServiceImpl<OrderMealInfoMappe
         OrderMealInfo orderMealInfo1 = selectOne(ew);
         if(orderMealInfo1 == null){
             baseMapper.insert(orderMealInfo);
+            log.info("这条记录已保存在数据库中，同时主键为: {}",orderMealInfo.getMealInfoId());
         }else {
-            log.info("那这条记录就不会保存到数据库中,原因是这样的数据已有了: {}",orderMealInfo1.toString());
+            log.info("保存这条记录失败,原因是这样的数据已有了: {}",orderMealInfo1.toString());
             return new OrderMealInfo().setMealType("出现这个表示添加订餐记录失败,原因是这样的数据已有了");
         }
-
-
         return orderMealInfo;
-    }
-    @Override
-    public String getOrderMealRecord() {
-        return null;
     }
     @Override
     public MealTypeDropdownVO getMealTypeMap() {
