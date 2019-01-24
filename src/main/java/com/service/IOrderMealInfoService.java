@@ -41,5 +41,4 @@ public interface IOrderMealInfoService extends BaseService<OrderMealInfoModel>{
      */
     void export1(HttpServletRequest request, HttpServletResponse response, OrderMealRecordSelectDTO orderMealRecordSelectDTO) throws Exception;
 
-    //Result export(OrderMealRecordSelectDTO orderMealRecordSelectDTO);
 }

@@ -117,16 +117,12 @@ public class OrderMealInfoServiceImpl extends BaseServiceImpl<OrderMealInfoMappe
         selectMap.put("isPage",orderMealRecordSelectDTO.getIsPage());
         selectMap.put("no",(orderMealRecordSelectDTO.getNo()-1)*orderMealRecordSelectDTO.getLimit());
         selectMap.put("limit",orderMealRecordSelectDTO.getLimit());
-
-
         analysisOrderMealRecordVOs = orderMealInfoMapper.analysisOrderMealRecord(selectMap);
-
         for (AnalysisOrderMealRecordVO analysisOrderMealRecordVO : analysisOrderMealRecordVOs) {
             analysisOrderMealRecordVO.setMealType("L".equals(analysisOrderMealRecordVO.getMealType()) ?"午餐":"晚餐");
         }
         result.setRecords(analysisOrderMealRecordVOs);
         result.setTotal(total);
-        log.info("根据上述参数查询结果为: {}",result);
         return result;
     }
 
@@ -146,51 +142,19 @@ public class OrderMealInfoServiceImpl extends BaseServiceImpl<OrderMealInfoMappe
         selectMap.put("no",(orderMealRecordSelectDTO.getNo()-1)*orderMealRecordSelectDTO.getLimit());
         selectMap.put("limit",orderMealRecordSelectDTO.getLimit());
         queryOrderMealRecordVOS = orderMealInfoMapper.queryOrderMealRecord(selectMap);
-
         for (QueryOrderMealRecordVO queryOrderMealRecordVO : queryOrderMealRecordVOS) {
             queryOrderMealRecordVO.setMealType("L".equals(queryOrderMealRecordVO.getMealType()) ?"午餐":"晚餐");
         }
         result.setRecords(queryOrderMealRecordVOS);
         result.setTotal(total);
-        log.info("根据上述参数查询结果为: {}",result);
         return result;
     }
 
-    /*@Override
-    public Result export(OrderMealRecordSelectDTO orderMealRecordSelectDTO) {
-        // 第一步，创建一个HSSFWorkbook，对应一个Excel文件
-        HSSFWorkbook wb = new HSSFWorkbook();
-
-        // 第二步，在workbook中添加一个sheet,对应Excel文件中的sheet
-        HSSFSheet sheet = wb.createSheet("sheet");
-
-        // 第三步，在sheet中添加表头第0行,注意老版本poi对Excel的行数列数有限制
-        HSSFRow row = sheet.createRow(0);
-
-        // 第四步，创建单元格，并设置值表头 设置表头居中
-        HSSFCellStyle style = wb.createCellStyle();
-        style.setAlignment(HSSFCellStyle.ALIGN_CENTER); // 创建一个居中格式
-
-        //声明列对象
-        HSSFCell cell = null;
-
-        //创建标题
-        String []title = new String[]{"日期","餐别","订餐人数"};
-        for(int i=0;i<title.length;i++){
-            cell = row.createCell(i);
-            cell.setCellValue(title[i]);
-            cell.setCellStyle(style);
-        }
-
-        return null;
-    }
-*/
     @Override
     public void export1(HttpServletRequest request, HttpServletResponse response, OrderMealRecordSelectDTO orderMealRecordSelectDTO) throws IOException, InvalidFormatException {
         SimpleDateFormat formatter = new SimpleDateFormat(HttpResponseCode.FORMAT_DATE);
         StringBuilder fileName = new StringBuilder("订餐信息").append(formatter.format(new Date())).append(".xlsx");
         formatter.applyPattern(HttpResponseCode.FORMAT_DATE);
-        //QueryResults<CompanyListVO> resultList = getCompanyPageByFilters(null, dto);
         ByteArrayOutputStream output = new ByteArrayOutputStream();
         InputStream inputStream = ClassUtils.getDefaultClassLoader().getResourceAsStream(HttpResponseCode.FILE_TEMPLATE_PATH + HttpResponseCode.SLASH + ExcelTemplateEnum.COMPANY_EXPORT.getLabel());
         Workbook wb = WorkbookFactory.create(inputStream);
@@ -208,7 +172,6 @@ public class OrderMealInfoServiceImpl extends BaseServiceImpl<OrderMealInfoMappe
         selectMap.put("no",(orderMealRecordSelectDTO.getNo()-1)*orderMealRecordSelectDTO.getLimit());
         selectMap.put("limit",orderMealRecordSelectDTO.getLimit());
         List<AnalysisOrderMealRecordVO> analysisOrderMealRecordVOs = orderMealInfoMapper.analysisOrderMealRecord(selectMap);
-        //List<CompanyListVO> companyListVOs = resultList.getResults();
         if (analysisOrderMealRecordVOs != null && analysisOrderMealRecordVOs.size() > 0) {
             for (AnalysisOrderMealRecordVO analysisOrderMealRecordVO : analysisOrderMealRecordVOs) {
                 Row row = sheet.createRow(line++);
