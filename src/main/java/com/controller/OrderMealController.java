@@ -3,6 +3,7 @@ package com.controller;
 
 import com.common.PageResult;
 import com.common.Result;
+import com.dto.CompareCustomGateInfoDTO;
 import com.dto.OrderMealDTO;
 import com.dto.OrderMealRecordSelectDTO;
 import com.entity.OrderMealInfo;
@@ -14,9 +15,15 @@ import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.web.bind.annotation.*;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.InputStream;
+import java.io.OutputStream;
+import java.text.ParseException;
 
 @Slf4j
 @RestController
@@ -27,11 +34,14 @@ public class OrderMealController {
     @Autowired
     private IOrderMealInfoService iOrderMealInfoService;
 
+    @Value("${localPicture.path}")
+    private String localPicturePath;
+
 
     @ApiOperation(value = "根据摄像头传过来的图片时间保存为订餐记录")
     @PostMapping("/save")
-    public Result saveOrderMealRecord(@RequestBody OrderMealDTO orderMealDTO) {
-        OrderMealInfo result = iOrderMealInfoService.saveOrderMealRecord(orderMealDTO);
+    public Result saveOrderMealRecord(@RequestBody CompareCustomGateInfoDTO compareCustomGateInfoDTO) throws ParseException {
+        OrderMealInfo result = iOrderMealInfoService.saveOrderMealRecord(compareCustomGateInfoDTO);
         return Result.builder().ok("保存为订餐记录成功").data(result).build();
     }
 
@@ -69,6 +79,29 @@ public class OrderMealController {
             iOrderMealInfoService.export1(request, response, orderMealRecordSelectDTO);
         } catch (Exception e) {
             log.error(e.getMessage());
+        }
+    }
+
+    @GetMapping("/getPicFromLocal")
+    @ResponseBody
+    @ApiOperation(value = "图片")
+    public void getPicFromLocal(String path, HttpServletResponse response)
+            throws Exception{
+        //String filePath = localPicturePath;
+        File file = new File(path);
+        response.setContentType("image/jpeg");
+        InputStream in = new FileInputStream(file);
+        OutputStream out = response.getOutputStream();
+        byte[] buf = new byte[1024];
+        int len;
+        while ((len = in.read(buf, 0, buf.length)) != -1) {
+            out.write(buf, 0, len);
+        }
+        try {
+            out.flush();
+        } finally {
+            out.close();
+            in.close();
         }
     }
 }

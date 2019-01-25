@@ -64,6 +64,7 @@ public class HttpResponseCode {
     public static final String SLASH = File.separator;
 
     public static final  String FORMAT_DATE = "yyyy-MM-dd";
+    public static final  String FORMAT_SIMPLE_DATE = "HH:mm";
 
     public static final String FORMAT_DATETIME_DEFAULT = "dd/MM/yyyy HH:mm";
 }

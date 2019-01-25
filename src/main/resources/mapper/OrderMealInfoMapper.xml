@@ -58,8 +58,8 @@
         <if test="userName != null">
             and order_meal_info.user_name like concat('%',#{userName},'%')
         </if>
-        GROUP BY order_meal_info.order_meal_date, order_meal_info.meal_info_id
-        ORDER BY order_meal_info.order_meal_date desc
+        GROUP BY order_meal_info.meal_info_id, order_meal_info.order_meal_date DESC
+        ORDER BY order_meal_info.order_time desc
         <if test="isPage == 1">
             limit #{no},#{limit}
         </if>

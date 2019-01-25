@@ -15,7 +15,7 @@ public class OrderMealDTO {
      * 预定日期
      */
     @JsonFormat(pattern="yyyy-MM-dd",timezone="GMT+8")
-    private Date orderMealDate;
+    private String orderMealDate;
     /**
      * 用户名称
      */
@@ -32,7 +32,7 @@ public class OrderMealDTO {
      * 预定时间
      */
     @JsonFormat(pattern="HH:mm",timezone="GMT+8")
-    private Date orderTime;
+    private String orderTime;
 
 
 

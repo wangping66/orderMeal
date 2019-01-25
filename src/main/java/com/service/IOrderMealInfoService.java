@@ -1,6 +1,7 @@
 package com.service;
 
 import com.common.PageResult;
+import com.dto.CompareCustomGateInfoDTO;
 import com.dto.OrderMealDTO;
 import com.dto.OrderMealRecordSelectDTO;
 import com.entity.OrderMealInfo;
@@ -12,6 +13,7 @@ import com.vo.QueryOrderMealRecordVO;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import java.text.ParseException;
 import java.util.List;
 
 /**
@@ -25,7 +27,7 @@ import java.util.List;
 public interface IOrderMealInfoService extends BaseService<OrderMealInfoModel>{
 
 
-    OrderMealInfo saveOrderMealRecord(OrderMealDTO orderMealDTO);
+    OrderMealInfo saveOrderMealRecord(CompareCustomGateInfoDTO compareCustomGateInfoDTO) throws ParseException;
 
     /**
      * 获取餐别类型下拉框

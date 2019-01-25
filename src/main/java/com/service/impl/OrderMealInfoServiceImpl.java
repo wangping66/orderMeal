@@ -3,6 +3,7 @@ package com.service.impl;
 import com.alibaba.fastjson.JSONArray;
 import com.baomidou.mybatisplus.mapper.EntityWrapper;
 import com.common.PageResult;
+import com.dto.CompareCustomGateInfoDTO;
 import com.dto.OrderMealDTO;
 import com.dto.OrderMealRecordSelectDTO;
 import com.entity.OrderMealInfo;
@@ -20,6 +21,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.apache.poi.openxml4j.exceptions.InvalidFormatException;
 import org.apache.poi.ss.usermodel.*;
 import org.springframework.beans.BeanUtils;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.util.ClassUtils;
 import com.constant.HttpResponseCode;
@@ -29,6 +31,7 @@ import javax.annotation.Resource;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.*;
+import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.*;
 
@@ -44,6 +47,11 @@ import java.util.*;
 @Slf4j
 public class OrderMealInfoServiceImpl extends BaseServiceImpl<OrderMealInfoMapper, OrderMealInfo,OrderMealInfoModel>  implements IOrderMealInfoService {
 
+    @Value("${localPicture.filePath}")
+    private String localPictureFilePath;
+
+    @Value("${localPicture.localImgPath}")
+    private String localImgPath;
 
     @Resource
     private OrderMealInfoMapper orderMealInfoMapper;
@@ -55,11 +63,18 @@ public class OrderMealInfoServiceImpl extends BaseServiceImpl<OrderMealInfoMappe
     private OrderTimeRangeMapper orderTimeRangeMapper;
 
     @Override
-    public OrderMealInfo saveOrderMealRecord(OrderMealDTO orderMealDTO) {
-        //1：根据传过来的订餐时间判断为午餐还是晚餐
+    public OrderMealInfo saveOrderMealRecord(CompareCustomGateInfoDTO compareCustomGateInfoDTO) throws ParseException {
+        //String base64ToFile = base64ToFile(compareCustomGateInfoDTO.getFaceImageBase64(), localPictureFilePath, localImgPath);
 
+        //1：根据传过来的订餐时间判断为午餐还是晚餐
+        Date snapTime = compareCustomGateInfoDTO.getSnapTime();
+        SimpleDateFormat formatter = new SimpleDateFormat(HttpResponseCode.FORMAT_DATE);
+        SimpleDateFormat formatter1 = new SimpleDateFormat(HttpResponseCode.FORMAT_SIMPLE_DATE);
+        String orderTimeString = formatter1.format(snapTime);
+        String orderMealDateString = formatter.format(snapTime);
+        Date orderTime = formatter1.parse(orderTimeString);
+        Date orderMealDate = formatter.parse(orderMealDateString);
         log.info("开始根据传过来的订餐时间判断为午餐还是晚餐");
-        Date orderTime = orderMealDTO.getOrderTime();
         String mealType = judgeMealType(orderTime);
         log.info("订餐类型为: {}",mealType);
         if(mealType == null){
@@ -67,12 +82,16 @@ public class OrderMealInfoServiceImpl extends BaseServiceImpl<OrderMealInfoMappe
             return new OrderMealInfo().setMealType("出现这个表示添加订餐记录失败，原因是订餐时间不在预定范围");
         }
         OrderMealInfo orderMealInfo = new OrderMealInfo();
-        BeanUtils.copyProperties(orderMealDTO,orderMealInfo);
+        orderMealInfo.setUserName(compareCustomGateInfoDTO .getUserName());
+        orderMealInfo.setTrackFace(compareCustomGateInfoDTO.getFaceImageBase64());
+        orderMealInfo.setOrderTime(orderTime);
+        orderMealInfo.setOrderMealDate(orderMealDate);
+        orderMealInfo.setPersonId(compareCustomGateInfoDTO.getPersonId().intValue());
         orderMealInfo.setMealType(mealType);
         log.info("开始保存订餐记录: {}",orderMealInfo);
         EntityWrapper ew = new EntityWrapper();
-        ew.eq("order_meal_date",orderMealDTO.getOrderMealDate());
-        ew.eq("user_name",orderMealDTO.getUserName());
+        ew.eq("order_meal_date",orderMealDate);
+        ew.eq("user_name",compareCustomGateInfoDTO .getUserName());
         ew.eq("meal_type",orderMealInfo.getMealType());
         OrderMealInfo orderMealInfo1 = selectOne(ew);
         if(orderMealInfo1 == null){
@@ -202,5 +221,44 @@ public class OrderMealInfoServiceImpl extends BaseServiceImpl<OrderMealInfoMappe
             }
         }
         return mealType;
+    }
+
+    //把base64转File
+    private static String base64ToFile(String base64,String localPictureFilePath,String imgPathFromYml) {
+        BufferedOutputStream bos = null;
+        java.io.FileOutputStream fos = null;
+        String imgPath="";
+        String localImgPath = "";
+        long l = System.currentTimeMillis();
+        try {
+            byte[] bytes = Base64.getDecoder().decode(base64);
+            imgPath = localPictureFilePath+l+".jpg";
+            fos = new FileOutputStream(imgPath);
+            bos = new BufferedOutputStream(fos);
+            bos.write(bytes);
+        } catch (Exception e) {
+            e.printStackTrace();
+        } finally {
+            if (bos != null) {
+                try {
+                    bos.close();
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+            }
+            if (fos != null) {
+                try {
+                    fos.close();
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+            }
+        }
+        if(imgPath.startsWith("/") || imgPath.startsWith("src")){
+            //localImgPath = "http://192.168.10.37:8090/"+l+".jpg";
+            localImgPath = +l+".jpg";
+            //http://192.168.10.37:8080/12.jpg
+        }
+        return localImgPath;
     }
 }
