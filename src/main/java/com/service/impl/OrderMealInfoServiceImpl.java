@@ -3,6 +3,7 @@ package com.service.impl;
 import com.alibaba.fastjson.JSONArray;
 import com.baomidou.mybatisplus.mapper.EntityWrapper;
 import com.common.PageResult;
+import com.dto.ActualBuildingImportDTO;
 import com.dto.CompareCustomGateInfoDTO;
 import com.dto.OrderMealDTO;
 import com.dto.OrderMealRecordSelectDTO;
@@ -17,14 +18,20 @@ import com.service.IOrderMealInfoService;
 import com.common.base.BaseServiceImpl;
 import com.utils.ExcelUtils;
 import com.vo.*;
+import io.swagger.annotations.ApiOperation;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.poi.openxml4j.exceptions.InvalidFormatException;
 import org.apache.poi.ss.usermodel.*;
+import org.apache.poi.util.StringUtil;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.util.ClassUtils;
 import com.constant.HttpResponseCode;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.multipart.MultipartFile;
+import springfox.documentation.service.ResponseMessage;
 
 
 import javax.annotation.Resource;
@@ -206,6 +213,47 @@ public class OrderMealInfoServiceImpl extends BaseServiceImpl<OrderMealInfoMappe
         ExcelUtils.export(request, response, output.toByteArray(), fileName.toString());
     }
 
+    @Override
+    public ImportExcelResultVO importActualBuildingByExcel(MultipartFile file, HttpServletRequest request) throws Exception {
+        List<? extends IcmpActualBuildingImportDTO> importDTOS = ExcelUtils.read2Bean(file.getInputStream(),
+                actualBuildingHeaderMapper, IcmpActualBuildingImportDTO.class);
+        List<IcmpActualBuildingImportDTO> effectDatas = filtrInvalidData(importDTOS);
+        List<ImportResultInfoVO> errorInfos = new ArrayList<>();
+        int failCount = 0;
+
+        if (CollectionUtils.isNotEmpty(effectDatas)) {
+            //真正的导入
+            List<? extends ActualBuildingImportDTO> departmentDtos = importActualBuilding(effectDatas);
+            // 错误信息部分
+            Collections.sort(departmentDtos, (Comparator<ActualBuildingImportDTO>) (o1, o2) -> {
+                if (o1.getRownum() != null && o2.getRownum() != null) {
+                    return o1.getRownum() - o2.getRownum();
+                }
+                return 0;
+            });
+            StringBuilder message = null;
+            for (ActualBuildingImportDTO actualBuildingvo : departmentDtos) {
+                message = new StringBuilder(20);
+                if (CollectionUtils.isNotEmpty(actualBuildingvo.getErrors())) {
+                    message = new StringBuilder(20);
+                    for (String s : actualBuildingvo.getErrors()) {
+                        message.append(s + ";");
+                    }
+                    errorInfos.add(new ImportResultInfoVO(StringUtil.toString(actualBuildingvo.getRownum()), message.toString()));
+                    failCount++;
+                }
+            }
+        } else {
+            List<ImportResultInfoVO> errorInfos2 = new ArrayList<>();
+            errorInfos2.add(new ImportResultInfoVO("1", "数据为空，请重新填写数据"));
+            return new ImportExcelResultVO(effectDatas.size(), failCount, errorInfos2);
+        }
+        if (0 != failCount) {
+            return new ImportExcelResultVO(effectDatas.size(), failCount, errorInfos);
+        }
+        return new ImportExcelResultVO(true, effectDatas.size(), failCount, errorInfos);
+    }
+
     private String judgeMealType(Date orderTime) {
         //需要从数据库去获取每个餐别允许的订餐时间 并比较判别出订餐类型 TODO
         String mealType = null;
@@ -261,4 +309,10 @@ public class OrderMealInfoServiceImpl extends BaseServiceImpl<OrderMealInfoMappe
         }
         return localImgPath;
     }
+
+
+
+
+
+
 }

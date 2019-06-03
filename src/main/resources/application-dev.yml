@@ -4,7 +4,7 @@ spring:
     driver-class-name: com.mysql.jdbc.Driver
     url: jdbc:mysql://localhost:3306/order?characterEncoding=utf8&useSSL=false
     username: root
-    password: root
+    password: zdkj
     #最大活跃数
     maxActive: 20
     #初始化数量
@@ -28,7 +28,7 @@ spring:
 logging:
   config: classpath:logback-spring.xml
   stash-host: 180.117.163.162:5044
-  dir: /Users/wangping/template
+  dir: E:\
 
 
 

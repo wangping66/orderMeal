@@ -9,6 +9,7 @@ import com.dto.OrderMealRecordSelectDTO;
 import com.entity.OrderMealInfo;
 import com.service.IOrderMealInfoService;
 import com.vo.AnalysisOrderMealRecordVO;
+import com.vo.ImportExcelResultVO;
 import com.vo.MealTypeDropdownVO;
 import com.vo.QueryOrderMealRecordVO;
 import io.swagger.annotations.Api;
@@ -17,6 +18,9 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
+import springfox.documentation.service.ResponseMessage;
+
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.File;
@@ -81,6 +85,26 @@ public class OrderMealController {
             log.error(e.getMessage());
         }
     }
+
+    /**
+     * 批量导入房屋
+     *
+     * @param file
+     * @param request
+     * @return
+     * @throws Exception
+     */
+    @PostMapping("/import")
+    @ApiOperation(value = "导入房屋数据")
+    public ImportExcelResultVO importExcel(@RequestParam("file") MultipartFile file, HttpServletRequest request) {
+        try {
+            return (iOrderMealInfoService.importActualBuildingByExcel(file, request));
+        } catch (Exception e) {
+            log.error(e.getMessage(), e);
+            System.out.println("失敗");
+        }
+    }
+
 
     @GetMapping("/getPicFromLocal")
     @ResponseBody

@@ -8,8 +8,10 @@ import com.entity.OrderMealInfo;
 import com.common.base.BaseService;
 import com.model.OrderMealInfoModel;
 import com.vo.AnalysisOrderMealRecordVO;
+import com.vo.ImportExcelResultVO;
 import com.vo.MealTypeDropdownVO;
 import com.vo.QueryOrderMealRecordVO;
+import org.springframework.web.multipart.MultipartFile;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -42,5 +44,7 @@ public interface IOrderMealInfoService extends BaseService<OrderMealInfoModel>{
      * 导出记录
      */
     void export1(HttpServletRequest request, HttpServletResponse response, OrderMealRecordSelectDTO orderMealRecordSelectDTO) throws Exception;
+
+    ImportExcelResultVO importActualBuildingByExcel(MultipartFile file, HttpServletRequest request) throws Exception;
 
 }
