@@ -1,3 +1,4 @@
+/*
 package com.vo;
 
 import com.google.common.collect.Maps;
@@ -25,3 +26,4 @@ public class IcmpActualBuildingImportDTO extends ActualBuildingImportDTO {
         actualBuildingHeaderMapper.put("室", "roomNo");
     }
 }
+*/

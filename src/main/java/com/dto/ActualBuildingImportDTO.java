@@ -1,6 +1,5 @@
 package com.dto;
 
-import com.kedacom.ctsp.web.dto.ImportDTO;
 import lombok.Data;
 
 @Data

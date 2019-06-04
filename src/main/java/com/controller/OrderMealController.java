@@ -94,7 +94,7 @@ public class OrderMealController {
      * @return
      * @throws Exception
      */
-    @PostMapping("/import")
+    /*@PostMapping("/import")
     @ApiOperation(value = "导入房屋数据")
     public ImportExcelResultVO importExcel(@RequestParam("file") MultipartFile file, HttpServletRequest request) {
         try {
@@ -103,7 +103,7 @@ public class OrderMealController {
             log.error(e.getMessage(), e);
             System.out.println("失敗");
         }
-    }
+    }*/
 
 
     @GetMapping("/getPicFromLocal")

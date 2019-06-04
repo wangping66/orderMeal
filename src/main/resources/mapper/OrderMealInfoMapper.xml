@@ -39,7 +39,7 @@
         order_meal_info.track_face,
         order_meal_info.user_name,
         order_meal_info.order_time
-        from (select * from order_meal_info where del_flag = '0') order_meal_info
+        from order_meal_info
         where 0=0
         <choose>
             <when test="mealType == null">
@@ -70,7 +70,7 @@
 
         select
         order_meal_info.order_meal_date,
-        order_meal_info.meal_type,
+        (CASE  when order_meal_info.meal_type = 'L' THEN  '午餐' ELSE '晚餐' END) AS meal_type ,
         count(*) as number
         from (select * from order_meal_info where del_flag = '0') order_meal_info
         where 0=0

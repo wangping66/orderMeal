@@ -202,7 +202,7 @@ public class OrderMealInfoServiceImpl extends BaseServiceImpl<OrderMealInfoMappe
             for (AnalysisOrderMealRecordVO analysisOrderMealRecordVO : analysisOrderMealRecordVOs) {
                 Row row = sheet.createRow(line++);
                 downloadService.setBodyCellValue(row, colIndex++, formatter.format(analysisOrderMealRecordVO.getOrderMealDate()), bodyStyle, dateStyle);
-                downloadService.setBodyCellValue(row, colIndex++, "L".equals(analysisOrderMealRecordVO.getMealType()) ?"午餐":"晚餐",bodyStyle, dateStyle);
+                downloadService.setBodyCellValue(row, colIndex++, analysisOrderMealRecordVO.getMealType(),bodyStyle, dateStyle);
                 downloadService.setBodyCellValue(row, colIndex++, analysisOrderMealRecordVO.getNumber(), bodyStyle, dateStyle);
                 colIndex = 0;
             }
@@ -213,7 +213,7 @@ public class OrderMealInfoServiceImpl extends BaseServiceImpl<OrderMealInfoMappe
         ExcelUtils.export(request, response, output.toByteArray(), fileName.toString());
     }
 
-    @Override
+    /*@Override
     public ImportExcelResultVO importActualBuildingByExcel(MultipartFile file, HttpServletRequest request) throws Exception {
         List<? extends IcmpActualBuildingImportDTO> importDTOS = ExcelUtils.read2Bean(file.getInputStream(),
                 actualBuildingHeaderMapper, IcmpActualBuildingImportDTO.class);
@@ -252,7 +252,7 @@ public class OrderMealInfoServiceImpl extends BaseServiceImpl<OrderMealInfoMappe
             return new ImportExcelResultVO(effectDatas.size(), failCount, errorInfos);
         }
         return new ImportExcelResultVO(true, effectDatas.size(), failCount, errorInfos);
-    }
+    }*/
 
     private String judgeMealType(Date orderTime) {
         //需要从数据库去获取每个餐别允许的订餐时间 并比较判别出订餐类型 TODO
