@@ -128,4 +128,8 @@ public class OrderMealController {
             in.close();
         }
     }
+
+    public static void main(String[] args) {
+
+    }
 }
